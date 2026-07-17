@@ -42,8 +42,6 @@ def contactos_view(request):
             if contacto_id:
                 contacto_editar = get_object_or_404(Contacto, id=contacto_id)
 
-    # ---- NUEVO: búsqueda por nombre ----
-# ---- búsqueda por nombre (resultados tipo Google, arriba) ----
     busqueda = request.GET.get('q', '')
     resultados_busqueda = None
     if busqueda:
