@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda de Contactos</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 30px auto;
+        padding: 0 20px;
+        background-color: #f4f6f8;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+    }
+
+    h2 {
+        color: #34495e;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 5px;
+    }
+
+    form {
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0 12px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    button:hover {
+        background-color: #2980b9;
+    }
+
+    ul#lista-contactos {
+        list-style: none;
+        padding: 0;
+    }
+
+    .contacto-item {
+        background: #fff;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .contacto-item a {
+        margin-left: 10px;
+        text-decoration: none;
+        color: #3498db;
+        font-size: 13px;
+    }
+
+    .contacto-item a:hover {
+        text-decoration: underline;
+    }
+
+    #resultados-busqueda, ul[style] {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        list-style: none;
+    }
+
+    ul[style] li {
+        padding: 6px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .errores {
+        background: #fdecea;
+        color: #c0392b;
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+</style>
+</head>
+<body>
+    <h1>Agenda de Contactos</h1>
+
+<form method="GET">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por nombre... (presiona Enter)">
+</form>
+
+{% if resultados_busqueda is not None %}
+    <ul style="border:1px solid #ccc; max-width:300px; padding:5px;">
+        {% if resultados_busqueda %}
+            {% for contacto in resultados_busqueda %}
+                <li>{{ contacto.nombre }} - {{ contacto.correo }} - {{ contacto.telefono }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No se encontraron resultados.</li>
+        {% endif %}
+    </ul>
+{% endif %}
+
+    {% if errores %}
+        <ul style="color:red;">
+            {% for error in errores %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>{% if contacto_editar %}Editar contacto{% else %}Nuevo contacto{% endif %}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% if contacto_editar %}
+            <input type="hidden" name="contacto_id" value="{{ contacto_editar.id }}">
+        {% endif %}
+
+        Nombre: <input type="text" name="nombre" value="{{ contacto_editar.nombre|default:'' }}"><br>
+        Correo: <input type="text" name="correo" value="{{ contacto_editar.correo|default:'' }}"><br>
+        Teléfono: <input type="text" name="telefono" value="{{ contacto_editar.telefono|default:'' }}"><br>
+
+        <button type="submit">
+            {% if contacto_editar %}Actualizar{% else %}Guardar{% endif %}
+        </button>
+    </form>
+
+    <hr>
+
+    <h2>Lista de contactos</h2>
+    <ul id="lista-contactos">
+        {% for contacto in contactos %}
+            <li class="contacto-item">
+                <span class="nombre-contacto">{{ contacto.nombre }}</span>
+                - {{ contacto.correo }} - {{ contacto.telefono }}
+                <a href="?editar={{ contacto.id }}">Editar</a>
+                <a href="{% url 'eliminar_contacto' contacto.id %}"
+                   onclick="return confirm('¿Eliminar este contacto?')">Eliminar</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+  
+</body>
+</html>
